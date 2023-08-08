@@ -1,15 +1,16 @@
 import db from "../database/database.connection.js"
 import bcrypt from 'bcrypt'
+import { loginSchema, userSchema } from "../schemas/userSchema.js"
 
 export async function SignUpValidation(req, res, next) {
     const user = req.body
    
-    // const { error } = userSchema.validate(user, { abortEarly: false })
+    const { error } = userSchema.validate(user, { abortEarly: false })
 
-    // if (error) {
-    //     const errorsMessage = error.details.map(detail => detail.message)
-    //     return res.status(422).send(errorsMessage)
-    // }
+    if (error) {
+        const errorsMessage = error.details.map(detail => detail.message)
+        return res.status(422).send(errorsMessage)
+    }
 
     const checkUser = await db.query("SELECT * FROM users WHERE email=$1;", [user.email])
     if (checkUser.rowCount !== 0) return res.status(409).send("Esse email já esta cadastrado")
@@ -23,12 +24,12 @@ export async function SignInValidation(req, res, next) {
 
     const user = req.body
 
-    // const { error } = loginSchema.validate(user, { abortEarly: false })
+    const { error } = loginSchema.validate(user, { abortEarly: false })
 
-    // if (error) {
-    //     const errorsMessage = error.details.map(detail => detail.message)
-    //     return res.status(422).send(errorsMessage)
-    // }
+    if (error) {
+        const errorsMessage = error.details.map(detail => detail.message)
+        return res.status(422).send(errorsMessage)
+    }
 
     try {
         const checkUser = await db.query('SELECT * FROM users WHERE email =$1', [user.email])
