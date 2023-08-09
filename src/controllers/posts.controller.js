@@ -51,3 +51,27 @@ export async function getPostById(req, res){
     }
 
 }
+
+export async function updatePost(req, res){
+    
+    const { id } = req.params
+
+    try {
+        const postSelect = await db.query("SELECT * FROM posts WHERE id=$1;", [id])
+        if(postSelect.rows.length === 0) return res.status(404).send("Arquivo não encontrado")
+
+        let newActive = true;
+        if(postSelect.rows[0].active) {
+            newActive = false
+        } else {
+            newActive = true
+        }
+
+        await db.query("UPDATE posts SET name_dog=$1, image=$2, description=$3, user_id=$4, active=$5;", 
+        [postSelect.rows[0].name_dog, postSelect.rows[0].image, postSelect.rows[0].description, postSelect.rows[0].user_id, newActive])
+
+        res.status(200).send("Alterado o active")
+    }catch (err) {
+        res.status(500).send(err.message)
+    }
+}
