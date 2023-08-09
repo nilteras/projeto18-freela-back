@@ -28,3 +28,26 @@ export async function getPosts(req, res){
         res.status(500).send(err.message)
     }
 }
+
+export async function getPostById(req, res){
+
+    const { id } = req.params
+
+    try{
+        const idPost = await db.query("SELECT * FROM posts WHERE id=$1;", [id])
+        if(idPost.rows.length === 0) return res.status(404).send("Arquivo não encontrado")
+
+        res.send({
+            id: idPost.rows[0].id,
+            name_dog: idPost.rows[0].name_dog,
+            image: idPost.rows[0].image,
+            description: idPost.rows[0].description,
+            user_id: idPost.rows[0].user_id,
+            active: idPost.rows[0].active
+        })
+
+    }catch (err) {
+        res.status(500).send(err.message)
+    }
+
+}
