@@ -50,7 +50,6 @@ export async function SignInValidation(req, res, next) {
 
 export async function authValidation(req, res, next){
     
-   
     const { authorization } = req.headers
     const token = authorization?.replace("Bearer ", "")
 
@@ -68,6 +67,5 @@ export async function authValidation(req, res, next){
     } catch (err) {
         return res.status(500).send(err.message)
     }
-
     next()
 }
