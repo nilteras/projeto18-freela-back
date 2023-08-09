@@ -48,3 +48,26 @@ export async function SignInValidation(req, res, next) {
     next()
 }
 
+export async function authValidation(req, res, next){
+    
+   
+    const { authorization } = req.headers
+    const token = authorization?.replace("Bearer ", "")
+
+    if (!token) return res.status(401).send("Não autorizado")
+
+    try {
+        const session = await db.query("SELECT * FROM sessions WHERE token=$1;", [token])
+        if(session.rows.length === 0) return res.status(401).send("Não autorizado")
+
+        const user = await db.query("SELECT * FROM users WHERE id=$1;", [session.rows[0].user_id])
+        if (!user) return res.status(401).send("Não autorizado")
+
+        res.locals.user = user
+
+    } catch (err) {
+        return res.status(500).send(err.message)
+    }
+
+    next()
+}

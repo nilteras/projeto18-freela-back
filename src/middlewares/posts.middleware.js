@@ -1,6 +1,6 @@
 import { postSchema } from "../schemas/postSchema.js"
 
-export async function PostValidation (req, res) {
+export async function PostValidation (req, res, next) {
     const post = req.body
 
     const { error } = postSchema.validate(post, { abortEarly: false })
