@@ -2,14 +2,14 @@ import db from "../database/database.connection.js"
 
 export async function createPost(req, res) {
 
-    const { name_dog, image, description, active } = res.locals.post
+    const { name_dog, image, description } = res.locals.post
     const user = res.locals.user
 
     try {
 
         await db.query(`
-        INSERT INTO posts (name_dog, image, description, user_id, active) VALUES ($1, $2, $3, $4, $5);`,
-            [name_dog, image, description, user.rows[0].id, active])
+        INSERT INTO posts (name_dog, image, description, user_id) VALUES ($1, $2, $3, $4);`,
+            [name_dog, image, description, user.rows[0].id])
         res.status(201).send("Post cadastrado")
 
     } catch (err) {
@@ -34,7 +34,14 @@ export async function getPostById(req, res) {
     const { id } = req.params
 
     try {
-        const idPost = await db.query("SELECT * FROM posts WHERE id=$1;", [id])
+        const idPost = await db.query(`
+        SELECT 
+            posts.*,
+            users.name,
+            users.phone
+        FROM posts 
+        JOIN users ON posts.user_id = users.id
+        WHERE posts.id=$1;`, [id])
         if (idPost.rows.length === 0) return res.status(404).send("Arquivo não encontrado")
 
         res.send({
@@ -42,7 +49,8 @@ export async function getPostById(req, res) {
             name_dog: idPost.rows[0].name_dog,
             image: idPost.rows[0].image,
             description: idPost.rows[0].description,
-            user_id: idPost.rows[0].user_id,
+            name: idPost.rows[0].name,
+            phone: idPost.rows[0].phone,
             active: idPost.rows[0].active
         })
 

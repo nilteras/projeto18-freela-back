@@ -25,7 +25,8 @@ export async function signIn(req, res) {
 
     try {
         await db.query(`INSERT INTO sessions (user_id, token) VALUES ($1, $2);`, [checkUser.rows[0].id, userToken])
-        res.status(200).send({ token: userToken })
+        const userName = await db.query("SELECT * FROM users WHERE email=$1;", [user.email])
+        res.status(200).send({ token: userToken, id: userName.rows[0].id, name: userName.rows[0].name })
 
     } catch (err) {
         res.status(500).send(err.message)
