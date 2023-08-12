@@ -62,31 +62,13 @@ export async function getPostById(req, res) {
 
 export async function updatePost(req, res) {
 
-    const { id } = req.body
-
+    const { id, available } = req.body;
     try {
-      
-
-        let newActive = true;
-        if (postSelect.rows[0].active) {
-            newActive = false
-        } else {
-            newActive = true
-        }
-
-        await db.query("UPDATE posts SET name_dog=$1, image=$2, description=$3, user_id=$4, active=$5 WHERE id=$6;",
-            [
-                postSelect.rows[0].name_dog,
-                postSelect.rows[0].image,
-                postSelect.rows[0].description,
-                postSelect.rows[0].user_id,
-                newActive,
-                id
-            ])
-
-        res.status(200).send("Arquivo atualizado")
+        await db.query("UPDATE posts SET active=$1 WHERE id=$2;", [available, id])
+        
+        res.status(200).send("Disponibilidade do post atualizada");
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).send(err.message);
     }
 }
 
