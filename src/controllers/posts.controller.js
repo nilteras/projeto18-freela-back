@@ -62,11 +62,10 @@ export async function getPostById(req, res) {
 
 export async function updatePost(req, res) {
 
-    const { id } = req.params
+    const { id } = req.body
 
     try {
-        const postSelect = await db.query("SELECT * FROM posts WHERE id=$1;", [id])
-        if (postSelect.rows.length === 0) return res.status(404).send("Arquivo não encontrado")
+      
 
         let newActive = true;
         if (postSelect.rows[0].active) {
@@ -85,8 +84,22 @@ export async function updatePost(req, res) {
                 id
             ])
 
-        res.status(200).send("Alterado o active")
+        res.status(200).send("Arquivo atualizado")
     } catch (err) {
         res.status(500).send(err.message)
     }
+}
+
+export async function getAllPostById(req, res) {
+
+    const { id } = req.params
+
+    try {
+        const postSelect = await db.query("SELECT * FROM posts WHERE user_id=$1;", [id])
+        if (postSelect.rows.length === 0) return res.status(404).send("Arquivo não encontrado")
+        res.status(200).send(postSelect.rows)
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+
 }
