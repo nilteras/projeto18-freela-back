@@ -8,7 +8,7 @@ export async function createPostDB(name_dog, image, description, user_id) {
 }
 
 export async function getPostDB() {
-    return db.query("SELECT * FROM posts")
+    return db.query("SELECT * FROM posts WHERE active=true")
 }
 
 export async function PostByIdDB(id) {
