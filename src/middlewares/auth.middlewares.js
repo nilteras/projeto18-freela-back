@@ -11,7 +11,7 @@ export async function SignUpValidation(req, res, next) {
         const errorsMessage = error.details.map(detail => detail.message)
         return res.status(422).send(errorsMessage)
     }
-    
+    const email = user.email
     const checkUser = await EmailValidationDB(email)
     if (checkUser.rowCount !== 0) return res.status(409).send("Esse email já esta cadastrado")
 
@@ -33,7 +33,7 @@ export async function SignInValidation(req, res, next) {
 
     try {
         const email = user.email
-        console.log(email)
+        
         const checkUser = await EmailValidationDB(email)
         if (checkUser.rowCount === 0) return res.status(401).send('Email não localizado no cadastro!')
 
