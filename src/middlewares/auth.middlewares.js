@@ -1,4 +1,3 @@
-import db from "../database/database.connection.js"
 import bcrypt from 'bcrypt'
 import { loginSchema, userSchema } from "../schemas/userSchema.js"
 import {  EmailValidationDB, authValidationSessionDB, authValidationUserDB } from "../repository/auth.repository.js"
@@ -12,7 +11,7 @@ export async function SignUpValidation(req, res, next) {
         const errorsMessage = error.details.map(detail => detail.message)
         return res.status(422).send(errorsMessage)
     }
-    const {email} = user.email
+    
     const checkUser = await EmailValidationDB(email)
     if (checkUser.rowCount !== 0) return res.status(409).send("Esse email já esta cadastrado")
 
@@ -62,7 +61,7 @@ export async function authValidation(req, res, next){
         const session = await authValidationSessionDB(token)
         if(session.rows.length === 0) return res.status(401).send("Não autorizado")
 
-        const {user_id_session} = session.rows[0].user_id
+        const user_id_session = session.rows[0].user_id
 
         const user = await authValidationUserDB(user_id_session)
         if (!user) return res.status(401).send("Não autorizado")

@@ -1,15 +1,14 @@
 import db from "../database/database.connection.js"
+import { PostByIdDB, allPostsByIdDB, createPostDB, getPostDB, updatePostDB } from "../repository/posts.repository.js"
 
 export async function createPost(req, res) {
 
     const { name_dog, image, description } = res.locals.post
     const user = res.locals.user
-
+ 
     try {
-
-        await db.query(`
-        INSERT INTO posts (name_dog, image, description, user_id) VALUES ($1, $2, $3, $4);`,
-            [name_dog, image, description, user.rows[0].id])
+        const user_id = user.rows[0].id
+        await createPostDB(name_dog, image, description, user_id)
         res.status(201).send("Post cadastrado")
 
     } catch (err) {
@@ -20,7 +19,7 @@ export async function createPost(req, res) {
 export async function getPosts(req, res) {
 
     try {
-        const posts = await db.query("SELECT * FROM posts;")
+        const posts = await getPostDB()
         if (posts.rows.length === 0) return res.sendStatus(404)
 
         res.send(posts.rows)
@@ -34,14 +33,7 @@ export async function getPostById(req, res) {
     const { id } = req.params
 
     try {
-        const idPost = await db.query(`
-        SELECT 
-            posts.*,
-            users.name,
-            users.phone
-        FROM posts 
-        JOIN users ON posts.user_id = users.id
-        WHERE posts.id=$1;`, [id])
+        const idPost = await PostByIdDB(id)
         if (idPost.rows.length === 0) return res.status(404).send("Arquivo não encontrado")
 
         res.send({
@@ -62,13 +54,13 @@ export async function getPostById(req, res) {
 
 export async function updatePost(req, res) {
 
-    const { id, available } = req.body;
+    const { id, available } = req.body
     try {
-        await db.query("UPDATE posts SET active=$1 WHERE id=$2;", [available, id])
-        
-        res.status(200).send("Disponibilidade do post atualizada");
+        updatePostDB(available,id)        
+        res.status(200).send("Disponibilidade do post atualizada")
+
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).send(err.message)
     }
 }
 
@@ -77,7 +69,7 @@ export async function getAllPostById(req, res) {
     const { id } = req.params
 
     try {
-        const postSelect = await db.query("SELECT * FROM posts WHERE user_id=$1;", [id])
+        const postSelect = await allPostsByIdDB(id)
         if (postSelect.rows.length === 0) return res.status(404).send("Arquivo não encontrado")
         res.status(200).send(postSelect.rows)
     } catch (err) {

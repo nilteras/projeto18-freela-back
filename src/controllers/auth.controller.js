@@ -1,4 +1,3 @@
-import db from "../database/database.connection.js"
 import bcrypt from 'bcrypt'
 import { v4 as uuid } from "uuid"
 import { dataUser, signInDB, signUpDB } from "../repository/users.repository.js"
