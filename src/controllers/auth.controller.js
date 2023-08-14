@@ -1,6 +1,8 @@
 import db from "../database/database.connection.js"
 import bcrypt from 'bcrypt'
 import { v4 as uuid } from "uuid"
+import { dataUser, signInDB, signUpDB } from "../repository/users.repository.js"
+
 
 export async function signUp(req, res) {
 
@@ -9,7 +11,7 @@ export async function signUp(req, res) {
     const hash = bcrypt.hashSync(password, 10)
 
     try {
-        await db.query("INSERT INTO users (name, cpf, phone, email, password) VALUES ($1, $2, $3, $4, $5);", [name, cpf, phone, email, hash])
+        signUpDB(name, cpf, phone, email, hash)
         res.status(201).send("Cadastro efetuado com sucesso")
 
     } catch (err) {
@@ -24,8 +26,11 @@ export async function signIn(req, res) {
     const userToken = uuid()
 
     try {
-        await db.query(`INSERT INTO sessions (user_id, token) VALUES ($1, $2);`, [checkUser.rows[0].id, userToken])
-        const userName = await db.query("SELECT * FROM users WHERE email=$1;", [user.email])
+        const checkUserId = checkUser.rows[0].id
+        signInDB(checkUserId,userToken) 
+
+        const email = user.email
+        const userName = await dataUser(email)
         res.status(200).send({ token: userToken, id: userName.rows[0].id, name: userName.rows[0].name })
 
     } catch (err) {
